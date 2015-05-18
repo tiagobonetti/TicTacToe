@@ -27,7 +27,6 @@ namespace TicTacToe
         protected override void Initialize()
         {
             base.Initialize();
-            Board.Initialize();
             _current = Board._base;
             _keyboard_last = Keyboard.GetState();
             _mouse_last = Mouse.GetState();
@@ -61,12 +60,11 @@ namespace TicTacToe
                     Tuple<uint, uint> cell = _current.CheckMouse(Mouse.GetState().Position.ToVector2());
                     if (cell != null)
                     {
-                        //_current._branches[_bindex].SwapCell(cell);
-                        _current.Play(Board._p1, cell);
+                        _current.Play(cell);
                         _current = _current._played;
                         if (!_current._ended)
                         {
-                            _current.PlayMinmax(Board._p2);
+                            _current.PlayMinmax();
                             _current = _current._played;
                         }
                     }

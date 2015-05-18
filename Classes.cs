@@ -6,46 +6,58 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Input;
 
 namespace TicTacToe
 {
     class Player
     {
-        public char _mark;
-
-        public Player(char mark)
+        public static Player None;
+        static Player()
         {
-            _mark = mark;
+            None = new Player(Player.Type.None);
+        }
+
+        public Texture2D _texture;
+        public enum Type {
+            None,
+            Human,
+            CPU
+        };
+        public Type _type;
+        public Player(Type type)
+        {
+            _type = type;
         }
     }
 
     class Board
     {
-        public static Texture2D _x, _o;
-        public static Vector2 _tsize;
         public static Board _base;
         public static Player _p1;
         public static Player _p2;
+        public static Vector2 _cell_size;
 
-        public static void Initialize()
+        static Board()
         {
-            _p1 = new Player('X');
-            _p2 = new Player('O');
+            _p1 = new Player(Player.Type.Human);
+            _p2 = new Player(Player.Type.CPU);
             _base = CleanBoard();
             _base._next = _p1;
             _base._last = _p2;
             _base.BuildBranches();
         }
+
         public static void LoadContent(ContentManager content)
         {
             // Statr Board Statics
-            Board._x = content.Load<Texture2D>("TicTacToeX");
-            Board._o = content.Load<Texture2D>("TicTacToeO");
-            Board._tsize = new Vector2(Math.Max(Board._x.Height, Board._o.Height),
-                                       Math.Max(Board._x.Width, Board._o.Width));
+            Board._p1._texture = content.Load<Texture2D>("TicTacToeX");
+            Board._p2._texture = content.Load<Texture2D>("TicTacToeO");
+            Board._cell_size = new Vector2(Math.Max(Board._p1._texture.Height, Board._p2._texture.Height),
+                                           Math.Max(Board._p1._texture.Width, Board._p2._texture.Width));
         }
 
-        public char[,] _cell;
+        public Player[,] _cell;
         public bool _ended;
         public bool _draw;
         public Player _winner;
@@ -59,8 +71,10 @@ namespace TicTacToe
         public Vector2 _origin;
         public Vector2 _scale;
         public Vector2 _sep;
+        public Vector2 _size;
+        public float _z;
 
-        public Board(char[,] cells)
+        public Board(Player[,] cells)
         {
             this._cell = cells;
             _ended = false;
@@ -70,16 +84,17 @@ namespace TicTacToe
             _origin = new Vector2();
             _scale = new Vector2(1.0f, 1.0f);
             _sep = new Vector2(0.2f, 0.2f);
+            _z = 0.5f;
         }
 
         public static Board CleanBoard()
         {
-            return new Board(new char[,] { { ' ', ' ', ' ' }, { ' ', ' ', ' ' }, { ' ', ' ', ' ' } });
+            return new Board(new Player[,] { { null, null, null }, { null, null, null }, { null, null, null } });
         }
 
         public Board Clone()
         {
-            return new Board((char[,])_cell.Clone())
+            return new Board((Player[,])_cell.Clone())
             {
                 _ended = this._ended,
                 _draw = this._draw,
@@ -89,14 +104,15 @@ namespace TicTacToe
                 _last = this._last,
                 _origin = this._origin,
                 _scale = this._scale,
-                _sep = this._sep
+                _sep = this._sep,
+                _z = this._z
             };
         }
 
         public void SetMove(uint i, uint j)
         {
             Debug.Assert((!_ended), "Ivalid Move: Game Ended!");
-            Debug.Assert((_cell[i, j] == ' '), "Ivalid Move: Invalid cell");
+            Debug.Assert((_cell[i, j] == null), "Ivalid Move: Invalid cell");
 
             Player p = _next;
             _next = _last;
@@ -107,18 +123,18 @@ namespace TicTacToe
             bool main = true, inv = true; // Diagonals
             bool draw = true;
 
-            _cell[i, j] = p._mark;
+            _cell[i, j] = p;
 
             for (uint n = 0; n < 3; n++)
             {
                 for (uint m = 0; m < 3; m++)
                 {
-                    draw &= !(_cell[n, m] == ' ');
+                    draw &= !(_cell[n, m] == null);
                 }
-                column &= (_cell[i, n] == p._mark);
-                line &= (_cell[n, j] == p._mark);
-                main &= _cell[n, n] == p._mark;
-                inv &= _cell[2 - n, n] == p._mark;
+                column &= (_cell[i, n] == p);
+                line &= (_cell[n, j] == p);
+                main &= _cell[n, n] == p;
+                inv &= _cell[2 - n, n] == p;
             }
             if (line || column || main || inv)
             {
@@ -140,7 +156,7 @@ namespace TicTacToe
             {
                 for (uint i = 0; i < 3; i++)
                 {
-                    if (_cell[i, j] == ' ')
+                    if (_cell[i, j] == null)
                     {
                         Board t = this.Clone();
                         t.SetMove(i, j);
@@ -151,35 +167,60 @@ namespace TicTacToe
             }
         }
 
-        public bool Play(Player p, Tuple<uint, uint> cell)
+        public void UpdateSize()
         {
-            Debug.Assert(p == _next, "Wrong Player!");
-            if (_cell[cell.Item1, cell.Item2] == ' ')
+            _size = (3 * Vector2.One + 2 * _sep) * _cell_size * _scale;
+        }
+
+        public void Update(MouseState mouse)
+        {
+            float x = mouse.Position.ToVector2().X;
+            float y = mouse.Position.ToVector2().Y;
+
+            if(x > _origin.X && x < _origin.X + _size.X &&
+               y > _origin.Y && y < _origin.Y + _size.Y )
             {
 
+                // Its hovering the board
+            }
+        }
+
+        public void Play()
+        {
+            if (_next._type == Player.Type.Human)
+            {
+                // ?
+            }
+            else  // _next._type == Player.Type.CPU 
+            {
+                PlayMinmax();
+            }
+        }
+
+        public void Play(Tuple<uint, uint> cell)
+        {
+            if (_cell[cell.Item1, cell.Item2] == null)
+            {
                 foreach (Board branch in _branches)
                 {
-                    if (branch._cell[cell.Item1, cell.Item2] == p._mark)
+                    if (branch._cell[cell.Item1, cell.Item2] == _next)
                     {
                         _played = branch;
-                        return true;
                     }
                 }
             }
-            return false;
         }
 
-        public void PlayMinmax(Player p)
+        public void PlayMinmax()
         {
-            Debug.Assert(p == _next, "Wrong CPU!");
             List<Board> wins = new List<Board>();
             List<Board> draws = new List<Board>();
             List<Board> loss = new List<Board>();
             foreach (Board branch in _branches)
             {
-                int ret = branch.Minmax(p);
+                int ret = branch.Minmax(_next);
                 if (ret > 0)
-                { 
+                {
                     wins.Add(branch);
                 }
                 else if (ret == 0)
@@ -187,27 +228,26 @@ namespace TicTacToe
                     draws.Add(branch);
                 }
                 else  // ret < 0
-                { 
+                {
                     loss.Add(branch);
                 }
-            }
-
-           if (loss.Count > 0)
-            {
-                _played = loss.First();
-                return;
-            }
-           if (draws.Count > 0)
-            {
-                _played = draws.First();
-                return;
             }
             if (wins.Count > 0)
             {
                 _played = wins.First();
                 return;
             }
-            Debug.Assert(p == _next, "The only move is not to play <o>!");
+            if (draws.Count > 0)
+            {
+                _played = draws.First();
+                return;
+            }
+            if (loss.Count > 0)
+            {
+                _played = loss.First();
+                return;
+            }
+            Debug.Assert(false, "The only move is not to play <o>!");
             return;
         }
 
@@ -241,10 +281,10 @@ namespace TicTacToe
 
         public bool CheckCell(Vector2 pos, uint i, uint j)
         {
-            Vector2 dest = new Vector2(i * Board._tsize.X, j * Board._tsize.Y);
+            Vector2 dest = new Vector2(i * Board._cell_size.X, j * Board._cell_size.Y);
             dest = _origin + (dest * _scale);
-            return ((pos.X > dest.X) && (pos.X < (dest.X + Board._tsize.X)) &&
-                   (pos.Y > dest.Y) && (pos.Y < (dest.Y + Board._tsize.Y)));
+            return ((pos.X > dest.X) && (pos.X < (dest.X + Board._cell_size.X)) &&
+                   (pos.Y > dest.Y) && (pos.Y < (dest.Y + Board._cell_size.Y)));
         }
 
         public Tuple<uint, uint> CheckMouse(Vector2 pos)
@@ -263,21 +303,22 @@ namespace TicTacToe
         }
         public void SwapCell(Tuple<uint, uint> cell)
         {
-            switch (_cell[cell.Item1, cell.Item2])
+            if (_cell[cell.Item1, cell.Item2] == null)
             {
-                case ' ':
-                    _cell[cell.Item1, cell.Item2] = 'X';
-                    break;
-                case 'X':
-                    _cell[cell.Item1, cell.Item2] = 'O';
-                    break;
-                case 'O':
-                    _cell[cell.Item1, cell.Item2] = ' ';
-                    break;
-                default:
-                    Debug.Assert(false, "WTF is this char doing here!");
-                    break;
+                _cell[cell.Item1, cell.Item2] = Board._p1;
+                return;
             }
+            if (_cell[cell.Item1, cell.Item2] == Board._p1)
+            {
+                _cell[cell.Item1, cell.Item2] = Board._p2;
+                return;
+            }
+            if (_cell[cell.Item1, cell.Item2] == Board._p2)
+            {
+                _cell[cell.Item1, cell.Item2] = null;
+                return;
+            }
+            Debug.Assert(false, "Who played this?!");
         }
 
         public void Draw(SpriteBatch sb)
@@ -286,20 +327,16 @@ namespace TicTacToe
             {
                 for (uint i = 0; i < 3; i++)
                 {
-                    Vector2 dest = new Vector2(i * Board._tsize.X, j * Board._tsize.Y);
-                    switch (_cell[i, j])
+                    Vector2 dest = new Vector2(i * Board._cell_size.X, j * Board._cell_size.Y);
+                    if (_cell[i, j] != null)
                     {
-                        case ' ':
-                            break;
-                        case 'X':
-                            sb.Draw(_x, _origin + (dest * _scale), null, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 0.5f);
-                            break;
-                        case 'O':
-                            sb.Draw(_o, _origin + (dest * _scale), null, Color.White, 0.0f, _origin, _scale, SpriteEffects.None, 0.5f);
-                            break;
-                        default:
-                            Debug.Assert(false, "WTF is this char doing here!");
-                            break;
+                        sb.Draw(_cell[i, j]._texture,
+                                _origin + (dest * _scale),
+                                null,
+                                Color.White,
+                                0.0f, _origin,
+                                _scale,
+                                SpriteEffects.None, 0.5f);
                     }
                 }
             }

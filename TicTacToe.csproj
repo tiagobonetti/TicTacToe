@@ -40,7 +40,6 @@
   <ItemGroup>
     <Compile Include="Classes.cs" />
     <Compile Include="main.cs" />
-    <Compile Include="Minmax.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
