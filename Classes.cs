@@ -150,11 +150,9 @@ namespace TicTacToe
         public void PlayMinmax(Player p)
         {
             Debug.Assert(p == _next, "Wrong CPU!");
-
             List<Board> wins = new List<Board>();
             List<Board> draws = new List<Board>();
             List<Board> loss = new List<Board>();
-
             foreach (Board branch in _branches)
             {
                 int ret = branch.Minmax(p);
@@ -166,7 +164,7 @@ namespace TicTacToe
                 {
                     draws.Add(branch);
                 }
-                else
+                else  // ret < 0
                 { 
                     loss.Add(branch);
                 }
