@@ -16,8 +16,9 @@ namespace TicTacToe
         Player _p1 = new Player('X');
         Player _p2 = new Player('O');
 
-        Board _table;
-        byte _bindex;
+        Board _base;
+        Board _current;
+        byte _index;
 
         KeyboardState _keyboard_last;
         MouseState _mouse_last;
@@ -33,10 +34,12 @@ namespace TicTacToe
             base.Initialize();
             _p1 = new Player('X');
             _p2 = new Player('O');
-            // _table = new Table(new char[,] { { 'X', 'O', ' ' }, { ' ', 'X', ' ' }, { ' ', 'O', 'X' } });
-            _table = Board.CleanBoard();
-            _table.BuildBranches(_p1, _p2);
-            _bindex = 0;
+            _base = Board.CleanBoard();
+            _base._next = _p1;
+            _base._last = _p2;
+            _base.BuildBranches();
+            _current = _base;
+            _index = 0;
             _keyboard_last = Keyboard.GetState();
             _mouse_last = Mouse.GetState();
             IsMouseVisible = true;
@@ -50,8 +53,7 @@ namespace TicTacToe
             Board._x = Content.Load<Texture2D>("TicTacToeX");
             Board._o = Content.Load<Texture2D>("TicTacToeO");
             Board._tsize = new Vector2(Math.Max(Board._x.Height, Board._o.Height),
-                                       Math.Max(Board._x.Width,  Board._o.Width));
-
+                                       Math.Max(Board._x.Width, Board._o.Width));
             // _f = Content.Load<SpriteFont>("Miramob");
         }
         protected override void UnloadContent()
@@ -66,15 +68,26 @@ namespace TicTacToe
             if (_keyboard_last.IsKeyUp(Keys.Space) &&
                 Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                _bindex += 1;
-                if (_bindex == _table._branches.Count) { _bindex = 0; }
+                _index += 1;
+                if (_index == _current._branches.Count) { _index = 0; }
             }
             _keyboard_last = Keyboard.GetState();
 
             if (_mouse_last.LeftButton == ButtonState.Released &&
                 Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
-                _table._branches[_bindex].Check(Mouse.GetState().Position.ToVector2());
+                if (!_current._ended)
+                {
+                    Tuple<uint, uint> cell = _current.CheckMouse(Mouse.GetState().Position.ToVector2());
+                    if (cell != null)
+                    {
+                        //_current._branches[_bindex].SwapCell(cell);
+                        // p1 is human
+                        if (_current.Play(_p1, cell)) { _current = _current._played; }
+                        // p2 is CPU
+                        if (!_current._ended && _current.PlayMinmax(_p2)) { _current = _current._played; }
+                    }
+                }
             }
             _mouse_last = Mouse.GetState();
 
@@ -94,7 +107,7 @@ namespace TicTacToe
                 null,
                 null);
 
-            _table._branches[_bindex].Draw(_spriteBatch);
+            _current.Draw(_spriteBatch);
             _spriteBatch.End();
         }
     }
