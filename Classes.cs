@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace TicTacToe
 {
@@ -22,6 +23,27 @@ namespace TicTacToe
     {
         public static Texture2D _x, _o;
         public static Vector2 _tsize;
+        public static Board _base;
+        public static Player _p1;
+        public static Player _p2;
+
+        public static void Initialize()
+        {
+            _p1 = new Player('X');
+            _p2 = new Player('O');
+            _base = CleanBoard();
+            _base._next = _p1;
+            _base._last = _p2;
+            _base.BuildBranches();
+        }
+        public static void LoadContent(ContentManager content)
+        {
+            // Statr Board Statics
+            Board._x = content.Load<Texture2D>("TicTacToeX");
+            Board._o = content.Load<Texture2D>("TicTacToeO");
+            Board._tsize = new Vector2(Math.Max(Board._x.Height, Board._o.Height),
+                                       Math.Max(Board._x.Width, Board._o.Width));
+        }
 
         public char[,] _cell;
         public bool _ended;

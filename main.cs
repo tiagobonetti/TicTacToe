@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -10,16 +11,10 @@ namespace TicTacToe
     {
         GraphicsDeviceManager _graphics;
         SpriteBatch _spriteBatch;
+        // TODO: Add sprite fonts
+        //SpriteFont _f;
 
-        SpriteFont _f;
-
-        Player _p1 = new Player('X');
-        Player _p2 = new Player('O');
-
-        Board _base;
         Board _current;
-        byte _index;
-
         KeyboardState _keyboard_last;
         MouseState _mouse_last;
 
@@ -32,28 +27,16 @@ namespace TicTacToe
         protected override void Initialize()
         {
             base.Initialize();
-            _p1 = new Player('X');
-            _p2 = new Player('O');
-            _base = Board.CleanBoard();
-            _base._next = _p1;
-            _base._last = _p2;
-            _base.BuildBranches();
-            _current = _base;
-            _index = 0;
+            Board.Initialize();
+            _current = Board._base;
             _keyboard_last = Keyboard.GetState();
             _mouse_last = Mouse.GetState();
             IsMouseVisible = true;
-
         }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // Statr Board Statics
-            Board._x = Content.Load<Texture2D>("TicTacToeX");
-            Board._o = Content.Load<Texture2D>("TicTacToeO");
-            Board._tsize = new Vector2(Math.Max(Board._x.Height, Board._o.Height),
-                                       Math.Max(Board._x.Width, Board._o.Width));
+            Board.LoadContent(Content);
             // _f = Content.Load<SpriteFont>("Miramob");
         }
         protected override void UnloadContent()
@@ -65,16 +48,13 @@ namespace TicTacToe
             {
                 Exit();
             }
-            if (_keyboard_last.IsKeyUp(Keys.Space) &&
-                Keyboard.GetState().IsKeyDown(Keys.Space))
+            if (_keyboard_last.IsKeyUp(Keys.Space) && Keyboard.GetState().IsKeyDown(Keys.Space))
             {
-                _index += 1;
-                if (_index == _current._branches.Count) { _index = 0; }
+                // TODO: Keyboard Events 
             }
             _keyboard_last = Keyboard.GetState();
 
-            if (_mouse_last.LeftButton == ButtonState.Released &&
-                Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (_mouse_last.LeftButton == ButtonState.Released && Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
                 if (!_current._ended)
                 {
@@ -82,18 +62,17 @@ namespace TicTacToe
                     if (cell != null)
                     {
                         //_current._branches[_bindex].SwapCell(cell);
-                        _current.Play(_p1, cell);
+                        _current.Play(Board._p1, cell);
                         _current = _current._played;
                         if (!_current._ended)
                         {
-                            _current.PlayMinmax(_p2);
+                            _current.PlayMinmax(Board._p2);
                             _current = _current._played;
                         }
                     }
                 }
             }
             _mouse_last = Mouse.GetState();
-
             base.Update(gameTime);
         }
         protected override void Draw(GameTime gameTime)
