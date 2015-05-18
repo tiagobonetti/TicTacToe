@@ -147,32 +147,48 @@ namespace TicTacToe
             return false;
         }
 
-        public bool PlayMinmax(Player p)
+        public void PlayMinmax(Player p)
         {
             Debug.Assert(p == _next, "Wrong CPU!");
 
             List<Board> wins = new List<Board>();
             List<Board> draws = new List<Board>();
+            List<Board> loss = new List<Board>();
 
             foreach (Board branch in _branches)
             {
                 int ret = branch.Minmax(p);
-                if (ret > 0) { wins.Add(branch); }
-                else if (ret == 0) { draws.Add(branch); }
+                if (ret > 0)
+                { 
+                    wins.Add(branch);
+                }
+                else if (ret == 0)
+                {
+                    draws.Add(branch);
+                }
+                else
+                { 
+                    loss.Add(branch);
+                }
             }
 
+           if (loss.Count > 0)
+            {
+                _played = loss.First();
+                return;
+            }
+           if (draws.Count > 0)
+            {
+                _played = draws.First();
+                return;
+            }
             if (wins.Count > 0)
             {
                 _played = wins.First();
-                return true;
+                return;
             }
-            if (draws.Count > 0)
-            {
-                _played = draws.First();
-                return true;
-            }
-            Debug.Assert(false, "Lost it!");
-            return false;
+            Debug.Assert(p == _next, "The only move is not to play <o>!");
+            return;
         }
 
         public int Minmax(Player p)

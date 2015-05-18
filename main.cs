@@ -82,10 +82,13 @@ namespace TicTacToe
                     if (cell != null)
                     {
                         //_current._branches[_bindex].SwapCell(cell);
-                        // p1 is human
-                        if (_current.Play(_p1, cell)) { _current = _current._played; }
-                        // p2 is CPU
-                        if (!_current._ended && _current.PlayMinmax(_p2)) { _current = _current._played; }
+                        _current.Play(_p1, cell);
+                        _current = _current._played;
+                        if (!_current._ended)
+                        {
+                            _current.PlayMinmax(_p2);
+                            _current = _current._played;
+                        }
                     }
                 }
             }
