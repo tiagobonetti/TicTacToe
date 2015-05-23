@@ -3,22 +3,25 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace TicTacToe
 {
-    public class main : Game
+    public class TicTacToe : Game
     {
         GraphicsDeviceManager _graphics;
-        SpriteBatch _spriteBatch;
+        public SpriteBatch _spriteBatch;
         // TODO: Add sprite fonts
         //SpriteFont _f;
 
-        Board _current;
-        KeyboardState _keyboard_last;
-        MouseState _mouse_last;
+        public Board _current;
+        public KeyboardState _keyboard_last;
+        public MouseState _mouse_last;
 
-        public main()
+        public TicTacToeFSM _fsm;
+
+        public TicTacToe()
             : base()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -27,15 +30,18 @@ namespace TicTacToe
         protected override void Initialize()
         {
             base.Initialize();
-            _current = Board._base;
+            // TODO: BUG
             _keyboard_last = Keyboard.GetState();
             _mouse_last = Mouse.GetState();
+            _fsm = new TicTacToeFSM(this);
             IsMouseVisible = true;
         }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             Board.LoadContent(Content);
+            Line.LoadContent(GraphicsDevice);
+
             // _f = Content.Load<SpriteFont>("Miramob");
         }
         protected override void UnloadContent()
@@ -47,29 +53,8 @@ namespace TicTacToe
             {
                 Exit();
             }
-            if (_keyboard_last.IsKeyUp(Keys.Space) && Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                // TODO: Keyboard Events 
-            }
+            _fsm.Update();
             _keyboard_last = Keyboard.GetState();
-
-            if (_mouse_last.LeftButton == ButtonState.Released && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                if (!_current._ended)
-                {
-                    Tuple<uint, uint> cell = _current.CheckMouse(Mouse.GetState().Position.ToVector2());
-                    if (cell != null)
-                    {
-                        _current.Play(cell);
-                        _current = _current._played;
-                        if (!_current._ended)
-                        {
-                            _current.PlayMinmax();
-                            _current = _current._played;
-                        }
-                    }
-                }
-            }
             _mouse_last = Mouse.GetState();
             base.Update(gameTime);
         }
@@ -81,13 +66,13 @@ namespace TicTacToe
             _spriteBatch.Begin(
                 SpriteSortMode.BackToFront,
                 BlendState.AlphaBlend,
-                SamplerState.PointClamp,
+                SamplerState.AnisotropicWrap,
                 null,
                 null,
                 null,
                 null);
 
-            _current.Draw(_spriteBatch);
+            _fsm.Draw();
             _spriteBatch.End();
         }
     }

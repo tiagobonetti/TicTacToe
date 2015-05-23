@@ -38,8 +38,10 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Classes.cs" />
-    <Compile Include="main.cs" />
+    <Compile Include="Board.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="TicTacToe.cs" />
+    <Compile Include="TicTacToeFSM.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

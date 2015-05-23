@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TicTacToe
 {
-    class Player
+    public class Player
     {
         public static Player None;
         static Player()
@@ -19,7 +19,8 @@ namespace TicTacToe
         }
 
         public Texture2D _texture;
-        public enum Type {
+        public enum Type
+        {
             None,
             Human,
             CPU
@@ -31,12 +32,14 @@ namespace TicTacToe
         }
     }
 
-    class Board
+    public class Board
     {
         public static Board _base;
         public static Player _p1;
         public static Player _p2;
         public static Vector2 _cell_size;
+        public static Random _random;
+
 
         static Board()
         {
@@ -46,8 +49,8 @@ namespace TicTacToe
             _base._next = _p1;
             _base._last = _p2;
             _base.BuildBranches();
+            _random = new Random();
         }
-
         public static void LoadContent(ContentManager content)
         {
             // Statr Board Statics
@@ -55,6 +58,7 @@ namespace TicTacToe
             Board._p2._texture = content.Load<Texture2D>("TicTacToeO");
             Board._cell_size = new Vector2(Math.Max(Board._p1._texture.Height, Board._p2._texture.Height),
                                            Math.Max(Board._p1._texture.Width, Board._p2._texture.Width));
+
         }
 
         public Player[,] _cell;
@@ -74,6 +78,16 @@ namespace TicTacToe
         public Vector2 _size;
         public float _z;
 
+
+        public enum Mode
+        {
+            Inactive,
+            Playing,
+            Selection
+        };
+        public Mode _mode;
+        public float _inactive;
+
         public Board(Player[,] cells)
         {
             this._cell = cells;
@@ -81,10 +95,12 @@ namespace TicTacToe
             _draw = false;
             _depth = 0;
             _branches = new List<Board>();
-            _origin = new Vector2();
+            _origin = new Vector2(100.0f, 100.0f);
             _scale = new Vector2(1.0f, 1.0f);
             _sep = new Vector2(0.2f, 0.2f);
             _z = 0.5f;
+            _mode = Board.Mode.Inactive;
+            _inactive = 0.5f;
         }
 
         public static Board CleanBoard()
@@ -169,7 +185,8 @@ namespace TicTacToe
 
         public void UpdateSize()
         {
-            _size = (3 * Vector2.One + 2 * _sep) * _cell_size * _scale;
+            //_size = (3 * Vector2.One + 2 * _sep) * _cell_size * _scale;
+            _size = (3 * Vector2.One) * _cell_size * _scale;
         }
 
         public void Update(MouseState mouse)
@@ -177,10 +194,9 @@ namespace TicTacToe
             float x = mouse.Position.ToVector2().X;
             float y = mouse.Position.ToVector2().Y;
 
-            if(x > _origin.X && x < _origin.X + _size.X &&
-               y > _origin.Y && y < _origin.Y + _size.Y )
+            if (x > _origin.X && x < _origin.X + _size.X &&
+               y > _origin.Y && y < _origin.Y + _size.Y)
             {
-
                 // Its hovering the board
             }
         }
@@ -234,21 +250,69 @@ namespace TicTacToe
             }
             if (wins.Count > 0)
             {
-                _played = wins.First();
+                _random.Next(wins.Count);
+                _played = wins.ElementAt(_random.Next(wins.Count));
+                    ;
                 return;
             }
             if (draws.Count > 0)
             {
-                _played = draws.First();
+                _played = draws.ElementAt(_random.Next(draws.Count));
                 return;
             }
             if (loss.Count > 0)
             {
-                _played = loss.First();
+                _played = loss.ElementAt(_random.Next(loss.Count));
                 return;
             }
             Debug.Assert(false, "The only move is not to play <o>!");
             return;
+        }
+
+        public List<Board> BranchesInTime()
+        {
+            List<Board> l = new List<Board>();
+            for (uint j = 0; j < 3; j++)
+            {
+                for (uint i = 0; i < 3; i++)
+                {
+                    if (_cell[i, j] == null)
+                    {
+                        Board t = this.Clone();
+                        t.SetMove(i, j);
+                        _branches.Add(t);
+                    }
+                }
+            }
+            return l;
+        }
+
+        public int MinmaxInTime(Player p)
+        {
+            if (_ended)
+            {
+                if (_draw) { return 0; }
+                else if (_winner == p) { return 1; }
+                return -1;
+            }
+            int valor;
+            if (_last == p)
+            {
+                valor = int.MaxValue;
+                foreach (Board branch in _branches)
+                {
+                    valor = Math.Min(valor, branch.Minmax(p));
+                }
+            }
+            else
+            {
+                valor = int.MinValue;
+                foreach (Board branch in _branches)
+                {
+                    valor = Math.Max(valor, branch.Minmax(p));
+                }
+            }
+            return valor;
         }
 
         public int Minmax(Player p)
@@ -277,6 +341,16 @@ namespace TicTacToe
                 }
             }
             return valor;
+        }
+
+        public void CleanPlayed()
+        {
+            _played = null;
+            if (_ended) { return; }
+            foreach (Board branch in _branches)
+            {
+                branch.CleanPlayed();
+            }
         }
 
         public bool CheckCell(Vector2 pos, uint i, uint j)
@@ -321,25 +395,48 @@ namespace TicTacToe
             Debug.Assert(false, "Who played this?!");
         }
 
+
         public void Draw(SpriteBatch sb)
         {
+            DrawLines(sb);
             for (uint j = 0; j < 3; j++)
             {
                 for (uint i = 0; i < 3; i++)
                 {
                     Vector2 dest = new Vector2(i * Board._cell_size.X, j * Board._cell_size.Y);
+                    dest = _origin + (dest * _scale);
                     if (_cell[i, j] != null)
                     {
                         sb.Draw(_cell[i, j]._texture,
-                                _origin + (dest * _scale),
+                                dest,
                                 null,
                                 Color.White,
-                                0.0f, _origin,
+                                0.0f,
+                                Vector2.One,
                                 _scale,
-                                SpriteEffects.None, 0.5f);
+                                SpriteEffects.None,
+                                0.5f);
                     }
                 }
             }
+        }
+
+        public void DrawLines(SpriteBatch sb)
+        {
+            UpdateSize();
+            Vector2 h1 = new Vector2(0.0f, Board._cell_size.Y);
+            h1 = _origin + (h1 * _scale);
+            Vector2 h2 = new Vector2(0.0f, Board._cell_size.Y * 2);
+            h2 = _origin + (h2 * _scale);
+            Vector2 v1 = new Vector2(Board._cell_size.X, 0.0f);
+            v1 = _origin + (v1 * _scale);
+            Vector2 v2 = new Vector2(Board._cell_size.X * 2, 0.0f);
+            v2 = _origin + (v2 * _scale);
+
+            Line.DrawLine(sb, h1, h1 + (_size * Vector2.UnitX));
+            Line.DrawLine(sb, h2, h2 + (_size * Vector2.UnitX));
+            Line.DrawLine(sb, v1, v1 + (_size * Vector2.UnitY));
+            Line.DrawLine(sb, v2, v2 + (_size * Vector2.UnitY));
         }
     }
 }
