@@ -37,43 +37,35 @@ namespace TicTacToe
         {
         }
     }
+
     public class PlayingState : IMainState
     {
         void IMainState.Enter(TicTacToeFSM fsm)
         {
-            fsm._game._current = Board._base;
+            IPlayer p1 = new HumanPlayer();
+            p1.texture = fsm._x;
+            IPlayer p2 = new CPUPlayer();
+            p2.texture = fsm._o;
+            fsm._board = new Board(p1, p2);
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
-            if (fsm._game._current._ended)
+            fsm._board.Update(Mouse.GetState());
+            fsm._board = fsm._board._next.Play(fsm._board);
+            if (fsm._board._ended)
             {
                 fsm.ChangeState(TicTacToeFSM.State.Result);
-                return;
-            }
-            if (fsm._game._mouse_last.LeftButton == ButtonState.Released && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                Tuple<uint, uint> cell = fsm._game._current.CheckMouse(Mouse.GetState().Position.ToVector2());
-                if (cell != null)
-                {
-                    fsm._game._current.Play(cell);
-                    fsm._game._current = fsm._game._current._played;
-                    if (!fsm._game._current._ended)
-                    {
-                        fsm._game._current.PlayMinmax();
-                        fsm._game._current = fsm._game._current._played;
-                    }
-                }
             }
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
-            fsm._game._current.Draw(fsm._game._spriteBatch);
+            fsm._board.Draw(fsm._game._spriteBatch);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
-            Board._base.CleanPlayed();
         }
     }
+
     public class ResultState : IMainState
     {
         void IMainState.Enter(TicTacToeFSM fsm)
@@ -88,12 +80,12 @@ namespace TicTacToe
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
+            fsm._board.Draw(fsm._game._spriteBatch);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
         }
     }
-
 
     public class TicTacToeFSM
     {
@@ -103,9 +95,6 @@ namespace TicTacToe
             Playing,
             Result
         }
-        public State _state;
-        public TicTacToe _game;
-
         static Dictionary<State, IMainState> _state_dic;
         static TicTacToeFSM()
         {
@@ -114,10 +103,22 @@ namespace TicTacToe
             _state_dic[State.Playing] = new PlayingState();
             _state_dic[State.Result] = new ResultState();
         }
+
+        public TicTacToe _game;
+        public State _state;
+        public Board _board;
+        public Texture2D _x;
+        public Texture2D _o;
+
         public TicTacToeFSM(TicTacToe main)
         {
             _state = State.Menu;
             _game = main;
+        }
+        public void LoadContent(ContentManager content)
+        {
+            _x = content.Load<Texture2D>("TicTacToeX");
+            _o = content.Load<Texture2D>("TicTacToeO");
         }
 
         public void ChangeState(State state)
@@ -126,11 +127,11 @@ namespace TicTacToe
             _state = state;
             _state_dic[_state].Enter(this);
         }
-
         public void Update()
         {
             _state_dic[_state].Update(this);
         }
+
         public void Draw()
         {
             _state_dic[_state].Draw(this);

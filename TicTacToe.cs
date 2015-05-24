@@ -15,10 +15,8 @@ namespace TicTacToe
         // TODO: Add sprite fonts
         //SpriteFont _f;
 
-        public Board _current;
         public KeyboardState _keyboard_last;
         public MouseState _mouse_last;
-
         public TicTacToeFSM _fsm;
 
         public TicTacToe()
@@ -30,18 +28,16 @@ namespace TicTacToe
         protected override void Initialize()
         {
             base.Initialize();
-            // TODO: BUG
             _keyboard_last = Keyboard.GetState();
             _mouse_last = Mouse.GetState();
             _fsm = new TicTacToeFSM(this);
+            _fsm.LoadContent(Content);
             IsMouseVisible = true;
         }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Board.LoadContent(Content);
             Line.LoadContent(GraphicsDevice);
-
             // _f = Content.Load<SpriteFont>("Miramob");
         }
         protected override void UnloadContent()
