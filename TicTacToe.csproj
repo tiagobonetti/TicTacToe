@@ -43,6 +43,7 @@
     <Compile Include="Mouse.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Text.cs" />
+    <Compile Include="Texture.cs" />
     <Compile Include="TicTacToe.cs" />
     <Compile Include="TicTacToeFSM.cs" />
     <Compile Include="Program.cs" />
