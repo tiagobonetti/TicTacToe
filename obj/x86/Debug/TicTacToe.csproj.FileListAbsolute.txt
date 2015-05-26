@@ -52,3 +52,5 @@ C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\SharpDX
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\SharpDX.RawInput.xml
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\SharpDX.Direct3D9.xml
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\obj\x86\Debug\TicTacToe.csprojResolveAssemblyReference.cache
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Arial.SpriteFont
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Arial.xnb

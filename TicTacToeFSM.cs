@@ -25,13 +25,14 @@ namespace TicTacToe
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
-            if (fsm._game._mouse_last.LeftButton == ButtonState.Released && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (MouseMgr._left_down)
             {
                 fsm.ChangeState(TicTacToeFSM.State.Playing);
             }
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
+            Text.DrawArial(fsm._game._spriteBatch, new Vector2(100.0f, 100.0f), "Menu", Color.White);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
@@ -73,14 +74,27 @@ namespace TicTacToe
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
-            if (fsm._game._mouse_last.LeftButton == ButtonState.Released && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (MouseMgr._left_down)
             {
                 fsm.ChangeState(TicTacToeFSM.State.Menu);
             }
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
-            fsm._board.Draw(fsm._game._spriteBatch);
+
+            IPlayer winner = fsm._board._winner;
+            SpriteBatch sb = fsm._game._spriteBatch;
+            Vector2 pos = new Vector2(0.0f, 0.0f);
+
+            if (winner == null)
+            {
+                Text.DrawArial(sb, pos, "Meat and Metal, tied again.", Color.White);
+            }
+            else // We have a winner
+            {
+                winner.WinMsg(sb, pos);
+            }
+            fsm._board.Draw(sb);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
@@ -120,7 +134,6 @@ namespace TicTacToe
             _x = content.Load<Texture2D>("TicTacToeX");
             _o = content.Load<Texture2D>("TicTacToeO");
         }
-
         public void ChangeState(State state)
         {
             _state_dic[_state].Leave(this);
@@ -131,7 +144,6 @@ namespace TicTacToe
         {
             _state_dic[_state].Update(this);
         }
-
         public void Draw()
         {
             _state_dic[_state].Draw(this);

@@ -32,7 +32,6 @@ namespace TicTacToe
         public float _z;
 
         // Mouse
-        public MouseState _mouse_last;
         public Tuple<uint, uint> _cell_clicked;
 
         // Building Boards
@@ -45,7 +44,6 @@ namespace TicTacToe
             _scale = new Vector2(1.0f, 1.0f);
             _sep = new Vector2(0.2f, 0.2f);
             _z = 0.5f;
-            _mouse_last = new MouseState();
         }
 
         public Board(IPlayer p1, IPlayer p2)
@@ -80,9 +78,6 @@ namespace TicTacToe
             _sep = b._sep;
             _size = b._size;
             _z = b._z;
-
-            // Mouse
-            _mouse_last = b._mouse_last;
         }
 
         public void SetMove(uint i, uint j)
@@ -134,21 +129,15 @@ namespace TicTacToe
 
         public void Update(MouseState mouse)
         {
-            bool click = false;
-            if (_mouse_last.LeftButton == ButtonState.Released && mouse.LeftButton == ButtonState.Pressed)
-            {
-                click = true;
-            }
-            _mouse_last = mouse;
 
             float x = mouse.Position.ToVector2().X;
             float y = mouse.Position.ToVector2().Y;
 
             if (x > _origin.X && x < _origin.X + _size.X &&
-               y > _origin.Y && y < _origin.Y + _size.Y)
+                y > _origin.Y && y < _origin.Y + _size.Y)
             {
                 // Its hovering the board
-                if (click)
+                if (MouseMgr._left_down)
                 {
                     _cell_clicked = CheckMouse(mouse.Position.ToVector2());
                 }
@@ -204,6 +193,10 @@ namespace TicTacToe
 
         public bool CheckCell(Vector2 pos, uint i, uint j)
         {
+            if (_cells[i,j] != null)
+            {
+                return false;
+            }
             Vector2 dest = new Vector2(i * _cell_size.X, j * _cell_size.Y);
             dest = _origin + (dest * _scale);
             return ((pos.X > dest.X) && (pos.X < (dest.X + _cell_size.X)) &&

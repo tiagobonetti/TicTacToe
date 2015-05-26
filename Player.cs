@@ -18,26 +18,9 @@ namespace TicTacToe
             set;
         }
         Board Play(Board board);
+        void WinMsg(SpriteBatch sb, Vector2 pos);
     }
 
-    public class NonePlayer : IPlayer
-    {
-        public Texture2D texture
-        {
-            get
-            {
-                return null;
-            }
-            set
-            {
-            }
-        }
-        public Board Play(Board board)
-        {
-            Debug.Assert(false, "NonePLayer donsn't play");
-            return board;
-        }
-    }
     public class HumanPlayer : IPlayer
     {
         public Texture2D _texture;
@@ -61,6 +44,10 @@ namespace TicTacToe
                 board._cell_clicked = null;
             }
             return board;
+        }
+        void IPlayer.WinMsg(SpriteBatch sb, Vector2 pos)
+        {
+            Text.DrawArial(sb, pos, "Player Wins!\n\rSuck that Machine",Color.White);
         }
     }
     public class CPUPlayer : IPlayer
@@ -120,6 +107,10 @@ namespace TicTacToe
             }
             Debug.Assert(false, "The only move is not to play <o>!");
             return null;
+        }
+        void IPlayer.WinMsg(SpriteBatch sb, Vector2 pos)
+        {
+            Text.DrawArial(sb, pos, "CPU Wins!\n\rPuny meatbag.",Color.White);
         }
     }
 }
