@@ -20,7 +20,6 @@ namespace TicTacToe
         Board Play(Board board);
         void WinMsg(SpriteBatch sb, Vector2 pos);
     }
-
     public class HumanPlayer : IPlayer
     {
         public Texture2D _texture;
@@ -47,15 +46,38 @@ namespace TicTacToe
         }
         void IPlayer.WinMsg(SpriteBatch sb, Vector2 pos)
         {
-            Text.DrawArial(sb, pos, "Player Wins!\n\rSuck that Machine",Color.White);
+            Primitives.DrawText(sb, pos, "Player Wins!\n\rSuck that Machine", Color.White);
         }
     }
-    public class CPUPlayer : IPlayer
+
+    public abstract class CpuBase
     {
-        static Random _random;
-        static CPUPlayer()
+        public enum Difficulty
+        {
+            Hard,
+            Normal,
+            Easy
+        };
+        public static Random _random;
+        static CpuBase()
         {
             _random = new Random();
+        }
+        public static IPlayer BuildPlayer(Difficulty difficulty)
+        {
+            switch (difficulty)
+            {
+                case Difficulty.Hard:
+                    return new HardCpu();
+                case Difficulty.Normal:
+                    return new NormalCpu();
+                case Difficulty.Easy:
+                    return new EasyCpu();
+                default:
+                    break;
+            }
+            Debug.Assert(false, "No patric, DarkSouls is not a difficulty!");
+            return null;
         }
 
         public Texture2D _texture;
@@ -71,46 +93,82 @@ namespace TicTacToe
             }
         }
 
+        public void WinMsg(SpriteBatch sb, Vector2 pos)
+        {
+            Primitives.DrawText(sb, pos, "CPU Wins!\n\rPuny meatbag.", Color.White);
+        }
+   }
+
+    public class HardCpu : CpuBase, IPlayer
+    {
         Board IPlayer.Play(Board board)
         {
-            List<Board> wins = new List<Board>();
-            List<Board> draws = new List<Board>();
-            List<Board> loss = new List<Board>();
-            List<Board> branches = board.Branches();
-            foreach (Board branch in branches)
+            Minmax mm = new Minmax(board, this);
+
+            if (mm._wins.Count > 0)
             {
-                int ret = branch.Minmax(this);
-                if (ret > 0)
-                {
-                    wins.Add(branch);
-                }
-                else if (ret == 0)
-                {
-                    draws.Add(branch);
-                }
-                else  // ret < 0
-                {
-                    loss.Add(branch);
-                }
+                return mm._wins.ElementAt(_random.Next(mm._wins.Count));
             }
-            if (wins.Count > 0)
+            if (mm._draws.Count > 0)
             {
-                return wins.ElementAt(_random.Next(wins.Count));
+                return mm._draws.ElementAt(_random.Next(mm._draws.Count));
             }
-            if (draws.Count > 0)
+            if (mm._loss.Count > 0)
             {
-                return draws.ElementAt(_random.Next(draws.Count));
-            }
-            if (loss.Count > 0)
-            {
-                return loss.ElementAt(_random.Next(loss.Count));
+                return mm._loss.ElementAt(_random.Next(mm._loss.Count));
             }
             Debug.Assert(false, "The only move is not to play <o>!");
             return null;
         }
-        void IPlayer.WinMsg(SpriteBatch sb, Vector2 pos)
+    }
+    public class NormalCpu : CpuBase, IPlayer
+    {
+        Board IPlayer.Play(Board board)
         {
-            Text.DrawArial(sb, pos, "CPU Wins!\n\rPuny meatbag.",Color.White);
+            if (_random.Next(2) > 0)
+            {
+                List<Board> b = board.Branches();
+                return b.ElementAt(_random.Next(b.Count));
+            }
+            else
+            {
+                Minmax mm = new Minmax(board, this);
+                if (mm._wins.Count > 0)
+                {
+                    return mm._wins.ElementAt(_random.Next(mm._wins.Count));
+                }
+                if (mm._draws.Count > 0)
+                {
+                    return mm._draws.ElementAt(_random.Next(mm._draws.Count));
+                }
+                if (mm._loss.Count > 0)
+                {
+                    return mm._loss.ElementAt(_random.Next(mm._loss.Count));
+                }
+                Debug.Assert(false, "The only move is not to play <o>!");
+                return null;
+            }
+        }
+    }
+    public class EasyCpu : CpuBase, IPlayer
+    {
+        Board IPlayer.Play(Board board)
+        {
+            Minmax mm = new Minmax(board, this);
+            if (mm._loss.Count > 0)
+            {
+                return mm._loss.ElementAt(_random.Next(mm._loss.Count));
+            }
+            if (mm._draws.Count > 0)
+            {
+                return mm._draws.ElementAt(_random.Next(mm._draws.Count));
+            }
+            if (mm._wins.Count > 0)
+            {
+                return mm._wins.ElementAt(_random.Next(mm._wins.Count));
+            }
+            Debug.Assert(false, "The only move is not to play <o>!");
+            return null;
         }
     }
 }

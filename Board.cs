@@ -10,6 +10,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TicTacToe
 {
+    public class Cell
+    {
+    }
+
     public class Board
     {
         // Rules
@@ -193,7 +197,7 @@ namespace TicTacToe
 
         public bool CheckCell(Vector2 pos, uint i, uint j)
         {
-            if (_cells[i,j] != null)
+            if (_cells[i, j] != null)
             {
                 return false;
             }
@@ -255,10 +259,43 @@ namespace TicTacToe
             Vector2 v2 = new Vector2(_cell_size.X * 2, 0.0f);
             v2 = _origin + (v2 * _scale);
 
-            Line.DrawLine(sb, h1, h1 + (_size * Vector2.UnitX));
-            Line.DrawLine(sb, h2, h2 + (_size * Vector2.UnitX));
-            Line.DrawLine(sb, v1, v1 + (_size * Vector2.UnitY));
-            Line.DrawLine(sb, v2, v2 + (_size * Vector2.UnitY));
+            Primitives.DrawLine(sb, h1, h1 + (_size * Vector2.UnitX), Color.White);
+            Primitives.DrawLine(sb, h2, h2 + (_size * Vector2.UnitX), Color.White);
+            Primitives.DrawLine(sb, v1, v1 + (_size * Vector2.UnitY), Color.White);
+            Primitives.DrawLine(sb, v2, v2 + (_size * Vector2.UnitY), Color.White);
+        }
+    }
+
+    public class Minmax
+    {
+        public List<Board> _branches;
+        public List<Board> _wins;
+        public List<Board> _draws;
+        public List<Board> _loss;
+
+        public Minmax(Board board, IPlayer player)
+        {
+            _wins = new List<Board>();
+            _draws = new List<Board>();
+            _loss = new List<Board>();
+            _branches = board.Branches();
+
+            foreach (Board branch in _branches)
+            {
+                int ret = branch.Minmax(player);
+                if (ret > 0)
+                {
+                    _wins.Add(branch);
+                }
+                else if (ret == 0)
+                {
+                    _draws.Add(branch);
+                }
+                else  // ret < 0
+                {
+                    _loss.Add(branch);
+                }
+            }
         }
     }
 }

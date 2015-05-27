@@ -10,7 +10,7 @@ namespace TicTacToe
 {
     public class TicTacToe : Game
     {
-        GraphicsDeviceManager _graphics;
+        public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public KeyboardState _keyboard_last;
         public TicTacToeFSM _fsm;
@@ -32,9 +32,7 @@ namespace TicTacToe
         {
             _fsm.LoadContent(Content);
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Line.LoadContent(GraphicsDevice);
-            Text.LoadContent(Content);
-
+            Primitives.LoadContent(GraphicsDevice, Content);
         }
         protected override void UnloadContent()
         {
@@ -56,14 +54,13 @@ namespace TicTacToe
             base.Draw(gameTime);
 
             _spriteBatch.Begin(
-                SpriteSortMode.BackToFront,
+                SpriteSortMode.FrontToBack,
                 BlendState.AlphaBlend,
                 SamplerState.AnisotropicWrap,
                 null,
                 null,
                 null,
                 null);
-
             _fsm.Draw();
             _spriteBatch.End();
         }

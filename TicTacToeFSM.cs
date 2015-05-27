@@ -20,22 +20,38 @@ namespace TicTacToe
 
     public class MenuState : IMainState
     {
+        ActionButton _start;
+        DiffButton _bt;
         void IMainState.Enter(TicTacToeFSM fsm)
         {
+            _start = new ActionButton("Start", new Vector2(100.0f, 300.0f), new Vector2(200.0f, 50.0f));
+            _bt = new DiffButton();
+            _bt._area._pos = new Vector2(100.0f, 400.0f);
+            _bt._area._size = new Vector2(200.0f, 50.0f);
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
-            if (MouseMgr._left_down)
+            if (_start.Update())
             {
                 fsm.ChangeState(TicTacToeFSM.State.Playing);
             }
+            _bt.Update();
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
-            Text.DrawArial(fsm._game._spriteBatch, new Vector2(100.0f, 100.0f), "Menu", Color.White);
+            SpriteBatch sb = fsm._game._spriteBatch;
+            _start.Draw(sb);
+            _bt.Draw(sb);
+
+            Primitives.DrawText(fsm._game._spriteBatch, new Vector2(100.0f, 100.0f), "Menu", Color.White);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
+            IPlayer p1 = new HumanPlayer();
+            p1.texture = fsm._x;
+            IPlayer p2 = CpuBase.BuildPlayer(_bt._diff);
+            p2.texture = fsm._o;
+            fsm._board = new Board(p1, p2);
         }
     }
 
@@ -43,11 +59,6 @@ namespace TicTacToe
     {
         void IMainState.Enter(TicTacToeFSM fsm)
         {
-            IPlayer p1 = new HumanPlayer();
-            p1.texture = fsm._x;
-            IPlayer p2 = new CPUPlayer();
-            p2.texture = fsm._o;
-            fsm._board = new Board(p1, p2);
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
@@ -88,7 +99,7 @@ namespace TicTacToe
 
             if (winner == null)
             {
-                Text.DrawArial(sb, pos, "Meat and Metal, tied again.", Color.White);
+                Primitives.DrawText(sb, pos, "Meat and Metal, tied again.", Color.White);
             }
             else // We have a winner
             {
@@ -127,7 +138,9 @@ namespace TicTacToe
         public TicTacToeFSM(TicTacToe main)
         {
             _state = State.Menu;
+            _state_dic[_state].Enter(this);
             _game = main;
+
         }
         public void LoadContent(ContentManager content)
         {
