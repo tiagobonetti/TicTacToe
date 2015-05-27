@@ -79,48 +79,73 @@ namespace TicTacToe
         {
             return (MouseMgr._left_down && _area.IsInside(MouseMgr._pos));
         }
-        public void Draw(SpriteBatch sb) {
+        public void Draw(SpriteBatch sb)
+        {
             _area.DrawText(sb, _name);
             _area.DrawSquare(sb);
         }
     }
 
-
-    public class DiffButton
+    public interface IOption
     {
-        public CpuBase.Difficulty _diff;
+        void Next();
+        string ToString();
+    }
+    public class DifficultyOption : IOption
+    {
+        public CpuBase.Difficulty _difficulty;
+        public DifficultyOption(CpuBase.Difficulty difficulty = CpuBase.Difficulty.Normal)
+        {
+            _difficulty = difficulty;
+        }
+        void IOption.Next()
+        {
+            switch (_difficulty)
+            {
+                case CpuBase.Difficulty.Hard:
+                    _difficulty = CpuBase.Difficulty.Easy;
+                    break;
+                case CpuBase.Difficulty.Normal:
+                    _difficulty = CpuBase.Difficulty.Hard;
+                    break;
+                case CpuBase.Difficulty.Easy:
+                    _difficulty = CpuBase.Difficulty.Normal;
+                    break;
+                default:
+                    Debug.Assert(false, "No patric, DarkSouls is not a difficulty!");
+                    break;
+            }
+        }
+        string IOption.ToString()
+        {
+            return _difficulty.ToString();
+        }
+        public static implicit operator CpuBase.Difficulty(DifficultyOption d)
+        {
+            return d._difficulty;
+        }
+    }
+
+    public class OptionButton
+    {
+        IOption _option;
         public ClickableArea _area;
         public string _name;
-
-        public DiffButton()
+        public OptionButton(IOption option)
         {
-            _diff = CpuBase.Difficulty.Easy;
+            _option = option;
             _area = new ClickableArea();
         }
         public void Update()
         {
             if (MouseMgr._left_down && _area.IsInside(MouseMgr._pos))
             {
-                switch (_diff)
-                {
-                    case CpuBase.Difficulty.Hard:
-                        _diff = CpuBase.Difficulty.Easy;
-                        break;
-                    case CpuBase.Difficulty.Normal:
-                        _diff = CpuBase.Difficulty.Hard;
-                        break;
-                    case CpuBase.Difficulty.Easy:
-                        _diff = CpuBase.Difficulty.Normal;
-                        break;
-                    default:
-                        Debug.Assert(false, "No patric, DarkSouls is not a difficulty!");
-                        break;
-                }
+                _option.Next();
             }
         }
         public void Draw(SpriteBatch sb)
         {
-            _area.DrawText(sb, _diff.ToString());
+            _area.DrawText(sb, _option.ToString());
             _area.DrawSquare(sb);
         }
     }

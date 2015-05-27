@@ -21,11 +21,11 @@ namespace TicTacToe
     public class MenuState : IMainState
     {
         ActionButton _start;
-        DiffButton _bt;
+        OptionButton _bt;
         void IMainState.Enter(TicTacToeFSM fsm)
         {
             _start = new ActionButton("Start", new Vector2(100.0f, 300.0f), new Vector2(200.0f, 50.0f));
-            _bt = new DiffButton();
+            _bt = new OptionButton(fsm._difficulty);
             _bt._area._pos = new Vector2(100.0f, 400.0f);
             _bt._area._size = new Vector2(200.0f, 50.0f);
         }
@@ -49,7 +49,7 @@ namespace TicTacToe
         {
             IPlayer p1 = new HumanPlayer();
             p1.texture = fsm._x;
-            IPlayer p2 = CpuBase.BuildPlayer(_bt._diff);
+            IPlayer p2 = CpuBase.BuildPlayer(fsm._difficulty);
             p2.texture = fsm._o;
             fsm._board = new Board(p1, p2);
         }
@@ -131,6 +131,7 @@ namespace TicTacToe
 
         public TicTacToe _game;
         public State _state;
+        public DifficultyOption _difficulty;
         public Board _board;
         public Texture2D _x;
         public Texture2D _o;
@@ -138,6 +139,7 @@ namespace TicTacToe
         public TicTacToeFSM(TicTacToe main)
         {
             _state = State.Menu;
+            _difficulty = new DifficultyOption();
             _state_dic[_state].Enter(this);
             _game = main;
 
