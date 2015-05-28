@@ -21,13 +21,19 @@ namespace TicTacToe
     public class MenuState : IMainState
     {
         ActionButton _start;
-        OptionButton _bt;
+        OptionButton _first;
+        OptionButton _diff;
         void IMainState.Enter(TicTacToeFSM fsm)
         {
-            _start = new ActionButton("Start", new Vector2(100.0f, 300.0f), new Vector2(200.0f, 50.0f));
-            _bt = new OptionButton(fsm._difficulty);
-            _bt._area._pos = new Vector2(100.0f, 400.0f);
-            _bt._area._size = new Vector2(200.0f, 50.0f);
+            _start = new ActionButton("Start",
+                                      new Vector2(100.0f, 250.0f),
+                                      new Vector2(200.0f, 50.0f));
+            _first = new OptionButton(fsm._firstplayer,
+                                     new Vector2(100.0f, 310.0f),
+                                     new Vector2(200.0f, 50.0f));
+            _diff = new OptionButton(fsm._difficulty,
+                                     new Vector2(100.0f, 370.0f),
+                                     new Vector2(200.0f, 50.0f));
         }
         void IMainState.Update(TicTacToeFSM fsm)
         {
@@ -35,21 +41,31 @@ namespace TicTacToe
             {
                 fsm.ChangeState(TicTacToeFSM.State.Playing);
             }
-            _bt.Update();
+            _first.Update();
+            _diff.Update();
         }
         void IMainState.Draw(TicTacToeFSM fsm)
         {
             SpriteBatch sb = fsm._game._spriteBatch;
             _start.Draw(sb);
-            _bt.Draw(sb);
-
-            Primitives.DrawText(fsm._game._spriteBatch, new Vector2(100.0f, 100.0f), "Menu", Color.White);
+            _first.Draw(sb);
+            _diff.Draw(sb);
+            Primitives.DrawText(fsm._game._spriteBatch, new Vector2(100.0f, 200.0f), "Menu:", Color.White);
         }
         void IMainState.Leave(TicTacToeFSM fsm)
         {
+
             IPlayer p1 = new HumanPlayer();
+            IPlayer p2 = BaseAI.BuildPlayer(fsm._difficulty);
+
+            if (fsm._firstplayer == BasePlayer.Type.AI)
+            {
+                IPlayer t = p1;
+                p1 = p2;
+                p2 = t;
+            }
+
             p1.texture = fsm._x;
-            IPlayer p2 = CpuBase.BuildPlayer(fsm._difficulty);
             p2.texture = fsm._o;
             fsm._board = new Board(p1, p2);
         }
@@ -132,6 +148,7 @@ namespace TicTacToe
         public TicTacToe _game;
         public State _state;
         public DifficultyOption _difficulty;
+        public FirstPlayerOption _firstplayer;
         public Board _board;
         public Texture2D _x;
         public Texture2D _o;
@@ -139,6 +156,7 @@ namespace TicTacToe
         public TicTacToeFSM(TicTacToe main)
         {
             _state = State.Menu;
+            _firstplayer = new FirstPlayerOption();
             _difficulty = new DifficultyOption();
             _state_dic[_state].Enter(this);
             _game = main;

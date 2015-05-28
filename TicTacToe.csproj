@@ -42,7 +42,7 @@
     <Compile Include="Primitives.cs" />
     <Compile Include="Mouse.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="Interactibles.cs" />
+    <Compile Include="Buttons.cs" />
     <Compile Include="TicTacToe.cs" />
     <Compile Include="TicTacToeFSM.cs" />
     <Compile Include="Program.cs" />

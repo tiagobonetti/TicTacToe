@@ -20,8 +20,31 @@ namespace TicTacToe
         Board Play(Board board);
         void WinMsg(SpriteBatch sb, Vector2 pos);
     }
-    public class HumanPlayer : IPlayer
+    public abstract class BasePlayer
     {
+        public enum Type
+        {
+            None,
+            Human,
+            AI
+        };
+        public static IPlayer BuildPlayer(Type type,
+                                          BaseAI.Difficulty difficulty = BaseAI.Difficulty.Normal)
+        {
+            switch (type)
+            {
+                case Type.None:
+                    return null;
+                case Type.Human:
+                    return new HumanPlayer();
+                case Type.AI:
+                    return BaseAI.BuildPlayer(difficulty);
+                default:
+                    break;
+            }
+            Debug.Assert(false, "Thats not a player type");
+            return null;
+        }
         public Texture2D _texture;
         public Texture2D texture
         {
@@ -34,6 +57,9 @@ namespace TicTacToe
                 _texture = value;
             }
         }
+    }
+    public class HumanPlayer : BasePlayer, IPlayer
+    {
         Board IPlayer.Play(Board board)
         {
             if (board._cell_clicked != null)
@@ -46,11 +72,10 @@ namespace TicTacToe
         }
         void IPlayer.WinMsg(SpriteBatch sb, Vector2 pos)
         {
-            Primitives.DrawText(sb, pos, "Player Wins!\n\rSuck that Machine", Color.White);
+            Primitives.DrawText(sb, pos, "Player Wins!\n\rSuck that software!", Color.White);
         }
     }
-
-    public abstract class CpuBase
+    public abstract class BaseAI : BasePlayer
     {
         public enum Difficulty
         {
@@ -59,7 +84,7 @@ namespace TicTacToe
             Easy
         };
         public static Random _random;
-        static CpuBase()
+        static BaseAI()
         {
             _random = new Random();
         }
@@ -68,11 +93,11 @@ namespace TicTacToe
             switch (difficulty)
             {
                 case Difficulty.Hard:
-                    return new HardCpu();
+                    return new HardAI();
                 case Difficulty.Normal:
-                    return new NormalCpu();
+                    return new NormalAI();
                 case Difficulty.Easy:
-                    return new EasyCpu();
+                    return new EasyAI();
                 default:
                     break;
             }
@@ -80,26 +105,13 @@ namespace TicTacToe
             return null;
         }
 
-        public Texture2D _texture;
-        public Texture2D texture
-        {
-            get
-            {
-                return _texture;
-            }
-            set
-            {
-                _texture = value;
-            }
-        }
-
         public void WinMsg(SpriteBatch sb, Vector2 pos)
         {
             Primitives.DrawText(sb, pos, "CPU Wins!\n\rPuny meatbag.", Color.White);
         }
-   }
+    }
 
-    public class HardCpu : CpuBase, IPlayer
+    public class HardAI : BaseAI, IPlayer
     {
         Board IPlayer.Play(Board board)
         {
@@ -121,7 +133,7 @@ namespace TicTacToe
             return null;
         }
     }
-    public class NormalCpu : CpuBase, IPlayer
+    public class NormalAI : BaseAI, IPlayer
     {
         Board IPlayer.Play(Board board)
         {
@@ -150,7 +162,7 @@ namespace TicTacToe
             }
         }
     }
-    public class EasyCpu : CpuBase, IPlayer
+    public class EasyAI : BaseAI, IPlayer
     {
         Board IPlayer.Play(Board board)
         {
