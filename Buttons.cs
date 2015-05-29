@@ -10,9 +10,14 @@ using Microsoft.Xna.Framework.Input;
 
 namespace TicTacToe
 {
-    public class BaseButton
+    public class BaseButton : IPositionable
     {
         public Vector2 _pos;
+        public Vector2 position
+        {
+            get { return _pos; }
+            set { _pos = value; }
+        }
         public Vector2 _size;
         public Vector2 _scale;
         public SpriteEffects _effect;

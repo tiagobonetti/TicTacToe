@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Animations.cs" />
     <Compile Include="Board.cs" />
     <Compile Include="Primitives.cs" />
     <Compile Include="Mouse.cs" />

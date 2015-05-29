@@ -13,13 +13,13 @@ namespace TicTacToe
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public KeyboardState _keyboard_last;
-        public TicTacToeFSM _fsm;
+        public StateMachine _fsm;
 
         public TicTacToe()
             : base()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _fsm = new TicTacToeFSM(this);
+            _fsm = new StateMachine(this);
             Content.RootDirectory = "Content";
         }
         protected override void Initialize()
@@ -44,7 +44,7 @@ namespace TicTacToe
             {
                 Exit();
             }
-            _fsm.Update();
+            _fsm.Update(gameTime);
             _keyboard_last = Keyboard.GetState();
             base.Update(gameTime);
         }
@@ -61,7 +61,7 @@ namespace TicTacToe
                 null,
                 null,
                 null);
-            _fsm.Draw();
+            _fsm.Draw(_spriteBatch);
             _spriteBatch.End();
         }
     }

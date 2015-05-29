@@ -10,107 +10,126 @@ using System.Text;
 
 namespace TicTacToe
 {
-    public interface IMainState
+    public interface IState
     {
-        void Enter(TicTacToeFSM fsm);
-        void Update(TicTacToeFSM fsm);
-        void Draw(TicTacToeFSM fsm);
-        void Leave(TicTacToeFSM fsm);
+        StateMachine fsm { set; }
+        void Enter();
+        void Update(GameTime gameTime);
+        void Draw(SpriteBatch spriteBatch);
+        void Leave();
     }
-
-    public class MenuState : IMainState
+    abstract public class BaseState
     {
+        public StateMachine _fsm;
+        public StateMachine fsm
+        {
+            set { _fsm = value; }
+        }
+    }
+    public class MenuState : BaseState, IState
+    {
+        Slide _start_slide;
         ActionButton _start;
+        Slide _first_slide;
         OptionButton _first;
+        Slide _diff_slide;
         OptionButton _diff;
-        void IMainState.Enter(TicTacToeFSM fsm)
+        void IState.Enter()
         {
             _start = new ActionButton("Start",
                                       new Vector2(100.0f, 250.0f),
                                       new Vector2(200.0f, 50.0f));
-            _first = new OptionButton(fsm._firstplayer,
+            _start_slide = new Slide(_start, new Vector2(-200.0f, 0.0f), 1.0f);
+
+            _first = new OptionButton(_fsm._firstplayer,
                                      new Vector2(100.0f, 310.0f),
                                      new Vector2(200.0f, 50.0f));
-            _diff = new OptionButton(fsm._difficulty,
+            _first_slide = new Slide(_first, new Vector2(-250.0f, 0.0f), 1.0f);
+
+            _diff = new OptionButton(_fsm._difficulty,
                                      new Vector2(100.0f, 370.0f),
                                      new Vector2(200.0f, 50.0f));
+            _diff_slide = new Slide(_diff, new Vector2(-300.0f, 0.0f), 1.0f);
         }
-        void IMainState.Update(TicTacToeFSM fsm)
+        void IState.Update(GameTime gameTime)
         {
+            _start_slide.Update(gameTime);
             if (_start.Update())
             {
-                fsm.ChangeState(TicTacToeFSM.State.Playing);
+                _fsm.ChangeState(StateMachine.State.Playing);
             }
+            _first_slide.Update(gameTime);
             _first.Update();
+
+            _diff_slide.Update(gameTime);
             _diff.Update();
         }
-        void IMainState.Draw(TicTacToeFSM fsm)
+        void IState.Draw(SpriteBatch spriteBatch)
         {
-            SpriteBatch sb = fsm._game._spriteBatch;
-            _start.Draw(sb);
-            _first.Draw(sb);
-            _diff.Draw(sb);
-            Primitives.DrawText(fsm._game._spriteBatch, new Vector2(100.0f, 200.0f), "Menu:", Color.White);
+            _start_slide.Draw(spriteBatch);
+            _first_slide.Draw(spriteBatch);
+            _diff_slide.Draw(spriteBatch);
+            Primitives.DrawText(spriteBatch, new Vector2(100.0f, 200.0f), "Menu:", Color.White);
         }
-        void IMainState.Leave(TicTacToeFSM fsm)
+        void IState.Leave()
         {
 
             IPlayer p1 = new HumanPlayer();
-            IPlayer p2 = BaseAI.BuildPlayer(fsm._difficulty);
+            IPlayer p2 = BaseAI.BuildPlayer(_fsm._difficulty);
 
-            if (fsm._firstplayer == BasePlayer.Type.AI)
+            if (_fsm._firstplayer == BasePlayer.Type.AI)
             {
                 IPlayer t = p1;
                 p1 = p2;
                 p2 = t;
             }
 
-            p1.texture = fsm._x;
-            p2.texture = fsm._o;
-            fsm._board = new Board(p1, p2);
+            p1.texture = _fsm._x;
+            p2.texture = _fsm._o;
+            _fsm._board = new Board(p1, p2);
         }
     }
 
-    public class PlayingState : IMainState
+    public class PlayingState : BaseState, IState
     {
-        void IMainState.Enter(TicTacToeFSM fsm)
+        void IState.Enter()
         {
         }
-        void IMainState.Update(TicTacToeFSM fsm)
+        void IState.Update(GameTime gameTime)
         {
-            fsm._board.Update(Mouse.GetState());
-            fsm._board = fsm._board._next.Play(fsm._board);
-            if (fsm._board._ended)
+            _fsm._board.Update(Mouse.GetState());
+            _fsm._board = _fsm._board._next.Play(_fsm._board);
+            if (_fsm._board._ended)
             {
-                fsm.ChangeState(TicTacToeFSM.State.Result);
+                _fsm.ChangeState(StateMachine.State.Result);
             }
         }
-        void IMainState.Draw(TicTacToeFSM fsm)
+        void IState.Draw(SpriteBatch spriteBatch)
         {
-            fsm._board.Draw(fsm._game._spriteBatch);
+            _fsm._board.Draw(_fsm._game._spriteBatch);
         }
-        void IMainState.Leave(TicTacToeFSM fsm)
+        void IState.Leave()
         {
         }
     }
 
-    public class ResultState : IMainState
+    public class ResultState : BaseState, IState
     {
-        void IMainState.Enter(TicTacToeFSM fsm)
+        void IState.Enter()
         {
         }
-        void IMainState.Update(TicTacToeFSM fsm)
+        void IState.Update(GameTime gameTime)
         {
             if (MouseMgr._left_down)
             {
-                fsm.ChangeState(TicTacToeFSM.State.Menu);
+                _fsm.ChangeState(StateMachine.State.Menu);
             }
         }
-        void IMainState.Draw(TicTacToeFSM fsm)
+        void IState.Draw(SpriteBatch spriteBatch)
         {
 
-            IPlayer winner = fsm._board._winner;
-            SpriteBatch sb = fsm._game._spriteBatch;
+            IPlayer winner = _fsm._board._winner;
+            SpriteBatch sb = _fsm._game._spriteBatch;
             Vector2 pos = new Vector2(0.0f, 0.0f);
 
             if (winner == null)
@@ -121,14 +140,14 @@ namespace TicTacToe
             {
                 winner.WinMsg(sb, pos);
             }
-            fsm._board.Draw(sb);
+            _fsm._board.Draw(sb);
         }
-        void IMainState.Leave(TicTacToeFSM fsm)
+        void IState.Leave()
         {
         }
     }
 
-    public class TicTacToeFSM
+    public class StateMachine
     {
         public enum State
         {
@@ -136,15 +155,7 @@ namespace TicTacToe
             Playing,
             Result
         }
-        static Dictionary<State, IMainState> _state_dic;
-        static TicTacToeFSM()
-        {
-            _state_dic = new Dictionary<State, IMainState>();
-            _state_dic[State.Menu] = new MenuState();
-            _state_dic[State.Playing] = new PlayingState();
-            _state_dic[State.Result] = new ResultState();
-        }
-
+        Dictionary<State, IState> _state_dic;
         public TicTacToe _game;
         public State _state;
         public DifficultyOption _difficulty;
@@ -153,12 +164,21 @@ namespace TicTacToe
         public Texture2D _x;
         public Texture2D _o;
 
-        public TicTacToeFSM(TicTacToe main)
+        public StateMachine(TicTacToe main)
         {
+            _state_dic = new Dictionary<State, IState>();
+            _state_dic[State.Menu] = new MenuState();
+            _state_dic[State.Playing] = new PlayingState();
+            _state_dic[State.Result] = new ResultState();
+            foreach (var pair in _state_dic)
+            {
+                pair.Value.fsm = this;
+            }
+
             _state = State.Menu;
             _firstplayer = new FirstPlayerOption();
             _difficulty = new DifficultyOption();
-            _state_dic[_state].Enter(this);
+            _state_dic[_state].Enter();
             _game = main;
 
         }
@@ -169,17 +189,17 @@ namespace TicTacToe
         }
         public void ChangeState(State state)
         {
-            _state_dic[_state].Leave(this);
+            _state_dic[_state].Leave();
             _state = state;
-            _state_dic[_state].Enter(this);
+            _state_dic[_state].Enter();
         }
-        public void Update()
+        public void Update(GameTime gameTime)
         {
-            _state_dic[_state].Update(this);
+            _state_dic[_state].Update(gameTime);
         }
-        public void Draw()
+        public void Draw(SpriteBatch spriteBatch)
         {
-            _state_dic[_state].Draw(this);
+            _state_dic[_state].Draw(spriteBatch);
         }
 
     }
