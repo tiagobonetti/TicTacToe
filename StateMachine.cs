@@ -15,7 +15,7 @@ namespace TicTacToe
         StateMachine fsm { set; }
         void Enter();
         void Update(GameTime gameTime);
-        void Draw(SpriteBatch spriteBatch);
+        void Draw(GameTime gameTime, SpriteBatch spriteBatch);
         void Leave();
     }
     abstract public class BaseState
@@ -53,22 +53,18 @@ namespace TicTacToe
         }
         void IState.Update(GameTime gameTime)
         {
-            _start_slide.Update(gameTime);
             if (_start.Update())
             {
                 _fsm.ChangeState(StateMachine.State.Playing);
             }
-            _first_slide.Update(gameTime);
             _first.Update();
-
-            _diff_slide.Update(gameTime);
             _diff.Update();
         }
-        void IState.Draw(SpriteBatch spriteBatch)
+        void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            _start_slide.Draw(spriteBatch);
-            _first_slide.Draw(spriteBatch);
-            _diff_slide.Draw(spriteBatch);
+            _start_slide.Draw(gameTime, spriteBatch);
+            _first_slide.Draw(gameTime, spriteBatch);
+            _diff_slide.Draw(gameTime, spriteBatch);
             Primitives.DrawText(spriteBatch, new Vector2(100.0f, 200.0f), "Menu:", Color.White);
         }
         void IState.Leave()
@@ -104,7 +100,7 @@ namespace TicTacToe
                 _fsm.ChangeState(StateMachine.State.Result);
             }
         }
-        void IState.Draw(SpriteBatch spriteBatch)
+        void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             _fsm._board.Draw(_fsm._game._spriteBatch);
         }
@@ -125,7 +121,7 @@ namespace TicTacToe
                 _fsm.ChangeState(StateMachine.State.Menu);
             }
         }
-        void IState.Draw(SpriteBatch spriteBatch)
+        void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
 
             IPlayer winner = _fsm._board._winner;
@@ -197,9 +193,9 @@ namespace TicTacToe
         {
             _state_dic[_state].Update(gameTime);
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            _state_dic[_state].Draw(spriteBatch);
+            _state_dic[_state].Draw(gameTime, spriteBatch);
         }
 
     }

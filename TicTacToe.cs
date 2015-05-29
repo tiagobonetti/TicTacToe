@@ -61,7 +61,7 @@ namespace TicTacToe
                 null,
                 null,
                 null);
-            _fsm.Draw(_spriteBatch);
+            _fsm.Draw(gameTime, _spriteBatch);
             _spriteBatch.End();
         }
     }

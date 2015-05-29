@@ -47,7 +47,7 @@ namespace TicTacToe
         {
             _elapsed = 0.0f;
         }
-        public void Update(GameTime gameTime)
+        public void Draw(GameTime gameTime, SpriteBatch sb)
         {
             if (_elapsed < _animation)
             {
@@ -56,9 +56,6 @@ namespace TicTacToe
                 _elapsed = Math.Min(_elapsed, _animation);
                 _obj.position = _origin + (_offset * (1 - (_elapsed / _animation)));
             }
-        }
-        public void Draw(SpriteBatch sb)
-        {
             _obj.Draw(sb);
         }
     }
