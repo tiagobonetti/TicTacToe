@@ -1,8 +1,8 @@
 
 #----------------------------- Global Properties ----------------------------#
 
-/outputDir:bin/Windows
-/intermediateDir:obj/Windows
+/outputDir:..\Content
+/intermediateDir:..\Content
 /platform:Windows
 /config:
 /profile:Reach
@@ -12,4 +12,10 @@
 
 
 #---------------------------------- Content ---------------------------------#
+
+#begin Sounds/plop.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/plop.wav
 

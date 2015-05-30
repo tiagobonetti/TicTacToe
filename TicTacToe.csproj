@@ -97,10 +97,11 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Arial.SpriteFont">
+    <None Include="Content\Arial.SpriteFont" />
+    <None Include="Content\Arial.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Arial.xnb">
+    <None Include="Content\Sounds\plop.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="TicTacToe_TemporaryKey.pfx" />

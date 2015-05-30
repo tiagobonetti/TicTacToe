@@ -93,6 +93,9 @@ namespace TicTacToe
         }
         void IState.Update(GameTime gameTime)
         {
+            if(_fsm._board._next is BaseAI ) {
+
+            }
             _fsm._board.Update(Mouse.GetState());
             _fsm._board = _fsm._board._next.Play(_fsm._board);
             if (_fsm._board._ended)
@@ -102,7 +105,7 @@ namespace TicTacToe
         }
         void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            _fsm._board.Draw(_fsm._game._spriteBatch);
+            _fsm._board.Draw(gameTime, spriteBatch);
         }
         void IState.Leave()
         {
@@ -136,7 +139,7 @@ namespace TicTacToe
             {
                 winner.WinMsg(sb, pos);
             }
-            _fsm._board.Draw(sb);
+            _fsm._board.Draw(gameTime, spriteBatch);
         }
         void IState.Leave()
         {

@@ -14,7 +14,7 @@ namespace TicTacToe
     {
     }
 
-    public class Board
+    public class Board : IPositionable
     {
         // Rules
         public IPlayer _p1;
@@ -28,12 +28,18 @@ namespace TicTacToe
         public uint _depth;
 
         // Visual
-        public Vector2 _origin;
+        public Vector2 _pos;
         public Vector2 _scale;
         public Vector2 _cell_size;
         public Vector2 _sep;
         public Vector2 _size;
         public float _z;
+
+        public Vector2 position
+        {
+            get { return _pos; }
+            set { _pos = value; }
+        }
 
         // Mouse
         public Tuple<uint, uint> _cell_clicked;
@@ -44,7 +50,7 @@ namespace TicTacToe
             _ended = false;
             _draw = false;
             _depth = 0;
-            _origin = new Vector2(100.0f, 100.0f);
+            _pos = new Vector2(100.0f, 100.0f);
             _scale = new Vector2(1.0f, 1.0f);
             _sep = new Vector2(0.2f, 0.2f);
             _z = 0.5f;
@@ -76,7 +82,7 @@ namespace TicTacToe
             _depth = b._depth;
 
             // Visual
-            _origin = b._origin;
+            _pos = b._pos;
             _scale = b._scale;
             _cell_size = b._cell_size;
             _sep = b._sep;
@@ -137,8 +143,8 @@ namespace TicTacToe
             float x = mouse.Position.ToVector2().X;
             float y = mouse.Position.ToVector2().Y;
 
-            if (x > _origin.X && x < _origin.X + _size.X &&
-                y > _origin.Y && y < _origin.Y + _size.Y)
+            if (x > _pos.X && x < _pos.X + _size.X &&
+                y > _pos.Y && y < _pos.Y + _size.Y)
             {
                 // Its hovering the board
                 if (MouseMgr._left_down)
@@ -202,7 +208,7 @@ namespace TicTacToe
                 return false;
             }
             Vector2 dest = new Vector2(i * _cell_size.X, j * _cell_size.Y);
-            dest = _origin + (dest * _scale);
+            dest = _pos + (dest * _scale);
             return ((pos.X > dest.X) && (pos.X < (dest.X + _cell_size.X)) &&
                    (pos.Y > dest.Y) && (pos.Y < (dest.Y + _cell_size.Y)));
         }
@@ -222,7 +228,7 @@ namespace TicTacToe
             return null;
         }
 
-        public void Draw(SpriteBatch sb)
+        public void Draw(GameTime gameTime, SpriteBatch sb)
         {
             DrawLines(sb);
             for (uint j = 0; j < 3; j++)
@@ -230,7 +236,7 @@ namespace TicTacToe
                 for (uint i = 0; i < 3; i++)
                 {
                     Vector2 dest = new Vector2(i * _cell_size.X, j * _cell_size.Y);
-                    dest = _origin + (dest * _scale);
+                    dest = _pos + (dest * _scale);
                     if (_cells[i, j] != null)
                     {
                         sb.Draw(_cells[i, j].texture,
@@ -251,13 +257,13 @@ namespace TicTacToe
         {
             UpdateSize();
             Vector2 h1 = new Vector2(0.0f, _cell_size.Y);
-            h1 = _origin + (h1 * _scale);
+            h1 = _pos + (h1 * _scale);
             Vector2 h2 = new Vector2(0.0f, _cell_size.Y * 2);
-            h2 = _origin + (h2 * _scale);
+            h2 = _pos + (h2 * _scale);
             Vector2 v1 = new Vector2(_cell_size.X, 0.0f);
-            v1 = _origin + (v1 * _scale);
+            v1 = _pos + (v1 * _scale);
             Vector2 v2 = new Vector2(_cell_size.X * 2, 0.0f);
-            v2 = _origin + (v2 * _scale);
+            v2 = _pos + (v2 * _scale);
 
             Primitives.DrawLine(sb, h1, h1 + (_size * Vector2.UnitX), Color.White);
             Primitives.DrawLine(sb, h2, h2 + (_size * Vector2.UnitX), Color.White);

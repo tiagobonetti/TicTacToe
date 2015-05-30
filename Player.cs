@@ -28,17 +28,23 @@ namespace TicTacToe
             Human,
             AI
         };
+        public Type _type;
         public static IPlayer BuildPlayer(Type type,
                                           BaseAI.Difficulty difficulty = BaseAI.Difficulty.Normal)
         {
+            BasePlayer p;
             switch (type)
             {
                 case Type.None:
                     return null;
                 case Type.Human:
-                    return new HumanPlayer();
+                    p = new HumanPlayer();
+                    p._type = Type.Human;
+                    return (IPlayer)p;
                 case Type.AI:
-                    return BaseAI.BuildPlayer(difficulty);
+                    p = (BasePlayer)BaseAI.BuildPlayer(difficulty);
+                    p._type = Type.AI;
+                    return (IPlayer)p;
                 default:
                     break;
             }
@@ -86,9 +92,10 @@ namespace TicTacToe
         public static Random _random;
         static BaseAI()
         {
+
             _random = new Random();
         }
-        public static IPlayer BuildPlayer(Difficulty difficulty)
+       public static IPlayer BuildPlayer(Difficulty difficulty)
         {
             switch (difficulty)
             {
@@ -115,6 +122,7 @@ namespace TicTacToe
     {
         Board IPlayer.Play(Board board)
         {
+            Primitives.PlaySound();
             Minmax mm = new Minmax(board, this);
 
             if (mm._wins.Count > 0)
@@ -137,6 +145,7 @@ namespace TicTacToe
     {
         Board IPlayer.Play(Board board)
         {
+            Primitives.PlaySound();
             if (_random.Next(2) > 0)
             {
                 List<Board> b = board.Branches();
@@ -166,6 +175,7 @@ namespace TicTacToe
     {
         Board IPlayer.Play(Board board)
         {
+            Primitives.PlaySound();
             Minmax mm = new Minmax(board, this);
             if (mm._loss.Count > 0)
             {

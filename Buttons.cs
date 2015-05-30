@@ -37,7 +37,7 @@ namespace TicTacToe
             _color = color;
             _z = z;
         }
-        virtual public void Draw(SpriteBatch sb)
+        virtual public void Draw(GameTime gameTime, SpriteBatch sb)
         {
             Vector2 end = _pos + _size;
             Primitives.DrawRectangle(sb, _pos, end, Color.Multiply(Color.CornflowerBlue, 0.9f), 0.1f);
@@ -65,9 +65,9 @@ namespace TicTacToe
             : base(pos, size, scale, effect, color, z)
         {
         }
-        override public void Draw(SpriteBatch sb)
+        override public void Draw(GameTime gameTime, SpriteBatch sb)
         {
-            base.Draw(sb);
+            base.Draw(gameTime, sb);
         }
     }
 
@@ -88,9 +88,9 @@ namespace TicTacToe
         {
             return (MouseMgr._left_down && base.IsInside(MouseMgr._pos));
         }
-        override public void Draw(SpriteBatch sb)
+        override public void Draw(GameTime gameTime, SpriteBatch sb)
         {
-            base.Draw(sb);
+            base.Draw(gameTime, sb);
             base.DrawText(sb, _name);
         }
     }
@@ -187,9 +187,9 @@ namespace TicTacToe
                 _option.Next();
             }
         }
-        override public void Draw(SpriteBatch sb)
+        override public void Draw(GameTime gameTime, SpriteBatch sb)
         {
-            base.Draw(sb);
+            base.Draw(gameTime, sb);
             base.DrawText(sb, _option.ToString());
         }
     }

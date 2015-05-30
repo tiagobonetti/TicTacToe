@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace TicTacToe
         static SpriteFont _text;
         static Texture2D _line;
         static Texture2D _rect;
+        static SoundEffect _plop;
         public static void LoadContent(GraphicsDevice dev, ContentManager content)
         {
             _text = content.Load<SpriteFont>("Arial");
@@ -22,6 +24,11 @@ namespace TicTacToe
             _line.SetData<Color>(new Color[] { Color.White });
             Primitives._rect = new Texture2D(dev, 1, 1);
             _rect.SetData<Color>(new Color[] { Color.White });
+            _plop = content.Load<SoundEffect>("Sounds/plop");
+        }
+        public static void PlaySound()
+        {
+            _plop.Play();
         }
         public static void DrawLine(SpriteBatch sb, Vector2 start, Vector2 end, Color color,
                                     float width = 1.0f, float z = 0.0f)
