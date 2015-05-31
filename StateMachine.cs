@@ -88,13 +88,20 @@ namespace TicTacToe
 
     public class PlayingState : BaseState, IState
     {
+        float _cpu_timeout;
         void IState.Enter()
         {
+            _cpu_timeout = 1.0f;
         }
         void IState.Update(GameTime gameTime)
         {
             if(_fsm._board._next is BaseAI ) {
-
+                _cpu_timeout -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (_cpu_timeout > 0)
+                {
+                    return;
+                }
+                _cpu_timeout = 2.0f;
             }
             _fsm._board.Update(Mouse.GetState());
             _fsm._board = _fsm._board._next.Play(_fsm._board);
