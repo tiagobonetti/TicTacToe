@@ -65,7 +65,12 @@ namespace TicTacToe {
 
         void IState.Update(GameTime gameTime) {
             if (_start.Update()) {
-                _fsm.ChangeState(StateMachine.State.Playing);
+                if (_fsm._firstplayer == BasePlayer.Type.AI) {
+                    _fsm.ChangeState(StateMachine.State.AI);
+                }
+                else {
+                    _fsm.ChangeState(StateMachine.State.Human);
+                }
             }
             _first.Update();
             _diff.Update();
@@ -96,42 +101,71 @@ namespace TicTacToe {
         }
     }
 
-    public class PlayingState : BaseState, IState {
-        float _cpu_timeout;
-        Wooble _wooble;
+    public class HumanState : BaseState, IState {
+        IPlayer p;
 
         void IState.Enter() {
-            _cpu_timeout = 1.0f;
-            _wooble = new Wooble(_fsm._board, 5.0f, 1.0f);
+            p = _fsm._board._next;
         }
 
         void IState.Update(GameTime gameTime) {
-            if (_fsm._board._next is BaseAI) {
-                _cpu_timeout -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (_cpu_timeout > 0) {
-                    return;
-                }
-                _cpu_timeout = 1.0f;
-            }
             _fsm._board.Update(Mouse.GetState());
-            _fsm._board = _fsm._board._next.Play(_fsm._board);
-            if (_fsm._board._ended) {
+            Board b = p.Play(_fsm._board);
+            if (p == b._next) {
+                return;
+            }
+            if (b._ended) {
                 _fsm.ChangeState(StateMachine.State.Result);
             }
-            _wooble = new Wooble(_fsm._board, 5.0f, 1.0f);
+            else {
+                _fsm._board = b;
+                _fsm.ChangeState(StateMachine.State.AI);
+
+            }
         }
         void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch) {
-            if (_cpu_timeout < 1.0) {
-                _wooble.Draw(gameTime,spriteBatch);
-            }
-            else {
                 _fsm._board.Draw(gameTime, spriteBatch);
-            }
         }
 
         void IState.Leave() {
         }
     }
+
+    public class AIState : BaseState, IState {
+        IPlayer p;
+        float _timeout;
+        Wooble _wooble;
+
+        void IState.Enter() {
+            p = _fsm._board._next;
+            _timeout = 1.0f;
+            _wooble = new Wooble(_fsm._board, 5.0f, 1.0f);
+        }
+
+        void IState.Update(GameTime gameTime) {
+            _timeout -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (_timeout > 0) {
+                return;
+            }
+            Board b = p.Play(_fsm._board);
+            _fsm._board = b;
+            if (b._ended) {
+                _fsm.ChangeState(StateMachine.State.Result);
+            }
+            else {
+                _fsm.ChangeState(StateMachine.State.Human);
+            }
+        }
+
+        void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch) {
+            _wooble.Draw(gameTime, spriteBatch);
+        }
+
+        void IState.Leave() {
+        }
+    }
+
+
 
     public class ResultState : BaseState, IState {
         Vector2 _endmsg_pos;
@@ -168,7 +202,8 @@ namespace TicTacToe {
     public class StateMachine {
         public enum State {
             Menu,
-            Playing,
+            Human,
+            AI,
             Result
         }
         Dictionary<State, IState> _state_dic;
@@ -194,7 +229,8 @@ namespace TicTacToe {
 
             _state_dic = new Dictionary<State, IState>();
             _state_dic[State.Menu] = new MenuState();
-            _state_dic[State.Playing] = new PlayingState();
+            _state_dic[State.Human] = new HumanState();
+            _state_dic[State.AI] = new AIState();
             _state_dic[State.Result] = new ResultState();
             foreach (var pair in _state_dic) {
                 pair.Value.fsm = this;
