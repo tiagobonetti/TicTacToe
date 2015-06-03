@@ -38,7 +38,7 @@ namespace TicTacToe {
         }
 
         public void DrawText(SpriteBatch sb, string text) {
-            Vector2 textpos = _pos + _size * new Vector2(0.1f, 0.5f);
+            Vector2 textpos = _pos + _size * new Vector2(0.05f, 0.5f);
             Primitives.DrawText(sb, textpos, text, _color,
                                 align: Primitives.TextAlign.CenterLeft);
         }
@@ -157,8 +157,9 @@ namespace TicTacToe {
 
     public class OptionButton : ClickableButton {
         IOption _option;
+        public string _name;
 
-        public OptionButton(IOption option, Vector2 pos, Vector2 size)
+        public OptionButton(IOption option, string name, Vector2 pos, Vector2 size)
             : base(pos,
                    size,
                    Vector2.One,
@@ -166,6 +167,7 @@ namespace TicTacToe {
                    Color.White,
                    0.5f) {
             _option = option;
+            _name = name;
         }
 
         public void Update() {
@@ -176,7 +178,7 @@ namespace TicTacToe {
 
         override public void Draw(GameTime gameTime, SpriteBatch sb) {
             base.Draw(gameTime, sb);
-            base.DrawText(sb, _option.ToString());
+            base.DrawText(sb, _name + ": " +_option.ToString());
         }
     }
 }

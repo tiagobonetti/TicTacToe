@@ -49,9 +49,11 @@ namespace TicTacToe {
                                       _guide_pos + Vector2.UnitY * _guide_size,
                                       _guide_size);
             _first = new OptionButton(_fsm._firstplayer,
+                                      "First move",
                                       _guide_pos + Vector2.UnitY * _guide_size * 2.1f,
                                       _guide_size);
             _diff = new OptionButton(_fsm._difficulty,
+                                     "Difficulty",
                                      _guide_pos + Vector2.UnitY * _guide_size * 3.2f,
                                      _guide_size);
 
@@ -96,9 +98,11 @@ namespace TicTacToe {
 
     public class PlayingState : BaseState, IState {
         float _cpu_timeout;
+        Wooble _wooble;
 
         void IState.Enter() {
             _cpu_timeout = 1.0f;
+            _wooble = new Wooble(_fsm._board, 5.0f, 1.0f);
         }
 
         void IState.Update(GameTime gameTime) {
@@ -107,17 +111,22 @@ namespace TicTacToe {
                 if (_cpu_timeout > 0) {
                     return;
                 }
-                _cpu_timeout = 2.0f;
+                _cpu_timeout = 1.0f;
             }
             _fsm._board.Update(Mouse.GetState());
             _fsm._board = _fsm._board._next.Play(_fsm._board);
             if (_fsm._board._ended) {
                 _fsm.ChangeState(StateMachine.State.Result);
             }
+            _wooble = new Wooble(_fsm._board, 5.0f, 1.0f);
         }
-
         void IState.Draw(GameTime gameTime, SpriteBatch spriteBatch) {
-            _fsm._board.Draw(gameTime, spriteBatch);
+            if (_cpu_timeout < 1.0) {
+                _wooble.Draw(gameTime,spriteBatch);
+            }
+            else {
+                _fsm._board.Draw(gameTime, spriteBatch);
+            }
         }
 
         void IState.Leave() {
