@@ -6,50 +6,48 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-namespace TicTacToe
-{
-    public class TicTacToe : Game
-    {
+namespace TicTacToe {
+    public class TicTacToe : Game {
         public GraphicsDeviceManager _graphics;
         public SpriteBatch _spriteBatch;
         public KeyboardState _keyboard_last;
         public StateMachine _fsm;
 
         public TicTacToe()
-            : base()
-        {
+            : base() {
             _graphics = new GraphicsDeviceManager(this);
             _fsm = new StateMachine(this);
             Content.RootDirectory = "Content";
         }
-        protected override void Initialize()
-        {
+
+        protected override void Initialize() {
             base.Initialize();
             _keyboard_last = Keyboard.GetState();
             IsMouseVisible = true;
         }
-        protected override void LoadContent()
-        {
+
+        protected override void LoadContent() {
+            Primitives.LoadContent(GraphicsDevice, Content);
             _fsm.LoadContent(Content);
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            Primitives.LoadContent(GraphicsDevice, Content);
         }
-        protected override void UnloadContent()
-        {
+
+        protected override void UnloadContent() {
         }
-        protected override void Update(GameTime gameTime)
-        {
+
+        protected override void Update(GameTime gameTime) {
             MouseMgr.Update(Mouse.GetState());
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+                || Keyboard.GetState().IsKeyDown(Keys.Escape)) {
                 Exit();
             }
+
             _fsm.Update(gameTime);
             _keyboard_last = Keyboard.GetState();
             base.Update(gameTime);
         }
-        protected override void Draw(GameTime gameTime)
-        {
+
+        protected override void Draw(GameTime gameTime) {
             GraphicsDevice.Clear(Color.CornflowerBlue);
             base.Draw(gameTime);
 

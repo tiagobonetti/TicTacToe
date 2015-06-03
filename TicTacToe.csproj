@@ -97,10 +97,10 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Arial.SpriteFont" />
-    <None Include="Content\Arial.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="Content\Fonts\Arial12.xnb" />
+    <None Include="Content\Fonts\Arial20.xnb" />
+    <None Include="Content\Fonts\Arial40.xnb" />
+    <None Include="Content\Fonts\Arial60B.xnb" />
     <None Include="Content\Sounds\plop.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

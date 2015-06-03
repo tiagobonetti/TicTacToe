@@ -8,18 +8,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 
-namespace TicTacToe
-{
-    public interface IPositionable
-    {
+namespace TicTacToe {
+    public interface IPositionable {
         Vector2 position { get; set; }
         void Draw(GameTime gameTime, SpriteBatch sb);
     }
-    public class Wooble
-    {
+
+    public class Wooble {
         static Random _rand;
-        static Wooble()
-        {
+        static Wooble() {
             _rand = new Random();
         }
 
@@ -31,8 +28,7 @@ namespace TicTacToe
         public Vector2 _origin;
         public float _elapsed;
 
-        public Wooble(IPositionable obj, float max, float animationTime)
-        {
+        public Wooble(IPositionable obj, float max, float animationTime) {
             _obj = obj;
             _max = max;
             _animation = animationTime;
@@ -42,14 +38,13 @@ namespace TicTacToe
             _origin += _pos;  // Copy original position
             _elapsed = 0.0f;
         }
-        public void Reset()
-        {
+
+        public void Reset() {
             _elapsed = 0.0f;
         }
-        public void Draw(GameTime gameTime, SpriteBatch sb)
-        {
-            if (_elapsed < _animation)
-            {
+
+        public void Draw(GameTime gameTime, SpriteBatch sb) {
+            if (_elapsed < _animation) {
                 var delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
                 _elapsed += delta;
                 _elapsed = Math.Min(_elapsed, _animation);
@@ -57,22 +52,20 @@ namespace TicTacToe
                 _rvec.Normalize();
                 _obj.position = _origin + (_max * _rvec);
 
-                if (_elapsed == _animation)
-                {
+                if (_elapsed == _animation) {
                     _obj.position = _origin;
                 }
             }
             _obj.Draw(gameTime, sb);
         }
     }
-        
-    public class Slide
-    {
-        public enum Movement
-        {
+
+    public class Slide {
+        public enum Movement {
             Linear,
             Elastic
         }
+
         IPositionable _obj;
         public Vector2 _offset;
         public float _animation;
@@ -82,26 +75,23 @@ namespace TicTacToe
         public Vector2 _origin;
         public float _elapsed;
 
-        public Slide(IPositionable obj, Vector2 start, float animationTime, Movement mov = Movement.Linear)
-        {
+        public Slide(IPositionable obj, Vector2 start, float animationTime, Movement mov = Movement.Linear) {
             _obj = obj;
             _offset = start;
             _animation = animationTime;
             _mov = mov;
-
             _pos = obj.position;
             _origin = new Vector2();
             _origin += _pos;  // Copy original position
             _elapsed = 0.0f;
         }
-        public void Reset()
-        {
+
+        public void Reset() {
             _elapsed = 0.0f;
         }
-        public void Draw(GameTime gameTime, SpriteBatch sb)
-        {
-            if (_elapsed < _animation)
-            {
+
+        public void Draw(GameTime gameTime, SpriteBatch sb) {
+            if (_elapsed < _animation) {
                 var delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
                 _elapsed += delta;
                 _elapsed = Math.Min(_elapsed, _animation);

@@ -5,5 +5,9 @@
   <Config />
   <SourceFiles>
     <File>C:/Users/Tiago/JogosDigitais/Games/TicTacToe/TicTacToe/Content/Sounds/plop.wav</File>
+    <File>C:/Users/Tiago/JogosDigitais/Games/TicTacToe/TicTacToe/Content/Fonts/Arial60B.spritefont</File>
+    <File>C:/Users/Tiago/JogosDigitais/Games/TicTacToe/TicTacToe/Content/Fonts/Arial12.spritefont</File>
+    <File>C:/Users/Tiago/JogosDigitais/Games/TicTacToe/TicTacToe/Content/Fonts/Arial20.spritefont</File>
+    <File>C:/Users/Tiago/JogosDigitais/Games/TicTacToe/TicTacToe/Content/Fonts/Arial40.spritefont</File>
   </SourceFiles>
 </SourceFileCollection>

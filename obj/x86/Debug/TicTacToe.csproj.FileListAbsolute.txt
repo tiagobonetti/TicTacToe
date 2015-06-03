@@ -27,7 +27,6 @@ c:\users\tiago\documents\visual studio 2013\Projects\TicTacToe\TicTacToe\obj\x86
 c:\users\tiago\documents\visual studio 2013\Projects\TicTacToe\TicTacToe\obj\x86\Debug\TicTacToe.pdb
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\TicTacToeO.png
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\TicTacToeX.png
-C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Arial.xnb
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\TicTacToe.exe.manifest
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\TicTacToe.application
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\TicTacToe.exe
@@ -58,3 +57,7 @@ C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\obj\x86\Debug\TicTacToe.a
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\obj\x86\Debug\TicTacToe.exe
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\obj\x86\Debug\TicTacToe.pdb
 C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Sounds\plop.xnb
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Fonts\Arial12.xnb
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Fonts\Arial20.xnb
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Fonts\Arial40.xnb
+C:\Users\Tiago\JogosDigitais\Games\TicTacToe\TicTacToe\bin\Windows\Debug\Content\Fonts\Arial60B.xnb
